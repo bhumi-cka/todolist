@@ -11,7 +11,8 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-mongoose.connect("mongodb+srv://Bhumicka:bhumicka123@cluster0.bu3jypb.mongodb.net/todolistDB");
+// mongoose.connect("mongodb+srv://Bhumicka:bhumicka123@cluster0.bu3jypb.mongodb.net/todolistDB");
+mongoose.connect("mongodb://127.0.0.1:27017/todolistDB");
 
 const itemsSchema = new mongoose.Schema({
   name: String
@@ -77,8 +78,10 @@ app.get("/:direct", function(req,res){
           items: defaultItems
         });
 
-        list.save();
-        res.redirect("/"+req.params.direct);
+        list.save(function(err){
+          if (!err) res.redirect("/"+req.params.direct);
+        });
+
       }
       else {
         //Show an existing list
@@ -104,14 +107,18 @@ app.post("/", function(req, res){
 
 
   if (listName === "Today") {
-    item.save();
-    res.redirect("/");
+    item.save(function(err){
+      if (!err) res.redirect("/");
+    });
+
   } else {
 
     List.findOne({name: listName}, function(err, foundList){
       foundList.items.push(item);
-      foundList.save();
-      res.redirect("/"+listName);
+      foundList.save(function(err){
+        if (!err) res.redirect("/"+listName);
+      });
+
     });
   }
 
